@@ -1,5 +1,6 @@
 package com.joaomps.devicemanager.controller;
 
+import com.joaomps.devicemanager.dto.DeviceCreationRequest;
 import com.joaomps.devicemanager.model.Device;
 import com.joaomps.devicemanager.service.DeviceService;
 import jakarta.validation.Valid;
@@ -21,7 +22,7 @@ public class DeviceController {
   }
 
   @PostMapping
-  public ResponseEntity<Device> createDevice(@Valid @RequestBody Device device) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.createDevice(device));
+  public ResponseEntity<Device> createDevice(@Valid @RequestBody DeviceCreationRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.createDevice(request));
   }
 }
