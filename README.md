@@ -90,4 +90,3 @@ docker compose up
 - Implement caching for frequently accessed data
 - Add authentication and authorization
 - Implement rate limiting
-- Add monitoring and health check endpoints
