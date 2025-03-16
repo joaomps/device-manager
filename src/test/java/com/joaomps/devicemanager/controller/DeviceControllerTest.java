@@ -1,40 +1,74 @@
 package com.joaomps.devicemanager.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.joaomps.devicemanager.dto.DeviceCreationRequest;
 import com.joaomps.devicemanager.model.Device;
+import com.joaomps.devicemanager.model.DeviceState;
 import com.joaomps.devicemanager.service.DeviceService;
-import org.junit.jupiter.api.BeforeEach;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
+@WebMvcTest(DeviceController.class)
+@Import(DeviceService.class)
 class DeviceControllerTest {
 
-  @Mock
+  @Autowired
+  private MockMvc mockMvc;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  @MockitoBean
   private DeviceService deviceService;
 
-  @InjectMocks
-  private DeviceController deviceController;
+  @Test
+  void createDevice_withValidRequest_returnsCreatedDevice() throws Exception {
+    DeviceCreationRequest request = new DeviceCreationRequest("Device1", "BrandA");
+    Device createdDevice = new Device(1L, "Device1", "BrandA", DeviceState.AVAILABLE,
+        LocalDateTime.now());
 
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
+    when(deviceService.createDevice(any(DeviceCreationRequest.class))).thenReturn(createdDevice);
+
+    mockMvc.perform(post("/api/v1/devices")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(createdDevice.getId()))
+        .andExpect(jsonPath("$.name").value(createdDevice.getName()))
+        .andExpect(jsonPath("$.brand").value(createdDevice.getBrand()))
+        .andExpect(jsonPath("$.state").value(createdDevice.getState().toString()));
   }
 
   @Test
-  void givenValidDevice_whenCreateDevice_thenReturnsCreatedStatus() {
-    Device device = new Device();
-    when(deviceService.createDevice(any(Device.class))).thenReturn(device);
+  void createDevice_withInvalidRequest_returnsBadRequest() throws Exception {
+    DeviceCreationRequest request = new DeviceCreationRequest("", "BrandA");
 
-    ResponseEntity<Device> response = deviceController.createDevice(device);
-
-    assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    assertEquals(device, response.getBody());
+    mockMvc.perform(post("/api/v1/devices")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
   }
+
+  @Test
+  void createDevice_withMissingBrand_returnsBadRequest() throws Exception {
+    DeviceCreationRequest request = new DeviceCreationRequest("Device1", "");
+
+    mockMvc.perform(post("/api/v1/devices")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
+  }
+
 }
