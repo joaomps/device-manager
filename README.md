@@ -59,7 +59,7 @@ The core entity in this application is the Device, which has the following prope
 1. Build the application:
 
 ```bash
-./mvnw clean package -DskipTests
+./mvnw clean package
 ```
 
 2. Start the containers:
