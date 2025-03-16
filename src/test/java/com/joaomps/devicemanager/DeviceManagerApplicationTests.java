@@ -1,4 +1,4 @@
-package com.joaomps.device_manager;
+package com.joaomps.devicemanager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;

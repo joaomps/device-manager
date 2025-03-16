@@ -1,4 +1,4 @@
-package com.joaomps.device_manager;
+package com.joaomps.devicemanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
