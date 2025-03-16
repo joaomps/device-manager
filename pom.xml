@@ -72,6 +72,11 @@
             <groupId>org.springframework.boot</groupId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <groupId>org.springdoc</groupId>
+            <version>2.8.5</version>
+        </dependency>
     </dependencies>
     <description>A simple device manager</description>
     <developers>
