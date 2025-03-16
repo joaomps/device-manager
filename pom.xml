@@ -29,6 +29,16 @@
                 </configuration>
                 <groupId>org.springframework.boot</groupId>
             </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                        -Xshare:off
+                    </argLine>
+                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
