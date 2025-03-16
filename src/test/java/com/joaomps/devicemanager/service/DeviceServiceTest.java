@@ -27,8 +27,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -42,6 +46,14 @@ class DeviceServiceTest {
 
   @InjectMocks
   private DeviceService deviceService;
+
+  static Stream<Arguments> provideDeviceDetailsForImmutablePropertiesValidation() {
+    return Stream.of(
+        Arguments.of("nameChange", "ChangedName", "OriginalBrand"),
+        Arguments.of("brandChange", "OriginalName", "ChangedBrand"),
+        Arguments.of("bothNameAndBrandChange", "ChangedName", "ChangedBrand")
+    );
+  }
 
   @BeforeEach
   void setUp() {
@@ -302,8 +314,11 @@ class DeviceServiceTest {
         () -> deviceService.partialUpdateDevice(1L, updates));
   }
 
-  @Test
-  void validateImmutablePropertiesForInUseDevice_withNameChange_throwsInvalidOperationException() {
+  @ParameterizedTest
+  @MethodSource("provideDeviceDetailsForImmutablePropertiesValidation")
+  void validateImmutablePropertiesForInUseDevice_withChanges_throwsInvalidOperationException(
+      String testName, String newName, String newBrand) {
+
     Device existingDevice = new Device();
     existingDevice.setId(1L);
     existingDevice.setState(DeviceState.IN_USE);
@@ -311,48 +326,8 @@ class DeviceServiceTest {
     existingDevice.setBrand("OriginalBrand");
 
     Device newDeviceDetails = new Device();
-    newDeviceDetails.setName("ChangedName");
-    newDeviceDetails.setBrand("OriginalBrand");
-
-    when(deviceRepository.findById(1L)).thenReturn(Optional.of(existingDevice));
-
-    InvalidOperationException exception = assertThrows(InvalidOperationException.class,
-        () -> deviceService.updateDevice(1L, newDeviceDetails));
-
-    assertEquals("Cannot update name or brand of a device that is in use", exception.getMessage());
-  }
-
-  @Test
-  void validateImmutablePropertiesForInUseDevice_withBrandChange_throwsInvalidOperationException() {
-    Device existingDevice = new Device();
-    existingDevice.setId(1L);
-    existingDevice.setState(DeviceState.IN_USE);
-    existingDevice.setName("OriginalName");
-    existingDevice.setBrand("OriginalBrand");
-
-    Device newDeviceDetails = new Device();
-    newDeviceDetails.setName("OriginalName");
-    newDeviceDetails.setBrand("ChangedBrand");
-
-    when(deviceRepository.findById(1L)).thenReturn(Optional.of(existingDevice));
-
-    InvalidOperationException exception = assertThrows(InvalidOperationException.class,
-        () -> deviceService.updateDevice(1L, newDeviceDetails));
-
-    assertEquals("Cannot update name or brand of a device that is in use", exception.getMessage());
-  }
-
-  @Test
-  void validateImmutablePropertiesForInUseDevice_withBothNameAndBrandChanges_throwsInvalidOperationException() {
-    Device existingDevice = new Device();
-    existingDevice.setId(1L);
-    existingDevice.setState(DeviceState.IN_USE);
-    existingDevice.setName("OriginalName");
-    existingDevice.setBrand("OriginalBrand");
-
-    Device newDeviceDetails = new Device();
-    newDeviceDetails.setName("ChangedName");
-    newDeviceDetails.setBrand("ChangedBrand");
+    newDeviceDetails.setName(newName);
+    newDeviceDetails.setBrand(newBrand);
 
     when(deviceRepository.findById(1L)).thenReturn(Optional.of(existingDevice));
 

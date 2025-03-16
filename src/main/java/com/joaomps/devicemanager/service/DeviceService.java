@@ -8,6 +8,7 @@ import com.joaomps.devicemanager.exception.InvalidOperationException;
 import com.joaomps.devicemanager.model.Device;
 import com.joaomps.devicemanager.model.DeviceState;
 import com.joaomps.devicemanager.repository.DeviceRepository;
+import com.joaomps.devicemanager.util.Constants;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -54,7 +55,8 @@ public class DeviceService {
 
   public void deleteById(Long id) {
     Device device = deviceRepository.findById(id)
-        .orElseThrow(() -> new DeviceNotFoundException("Device with id " + id + " was not found"));
+        .orElseThrow(
+            () -> new DeviceNotFoundException(Constants.DEVICE_WITH_ID + id + " was not found"));
 
     if (DeviceState.IN_USE == device.getState()) {
       throw new InvalidOperationException("Cannot delete a device that is in use");
@@ -84,7 +86,8 @@ public class DeviceService {
 
   public Device updateDevice(Long id, Device newDeviceDetails) {
     Device existingDevice = deviceRepository.findById(id)
-        .orElseThrow(() -> new DeviceNotFoundException("Device with id " + id + " not found"));
+        .orElseThrow(
+            () -> new DeviceNotFoundException(Constants.DEVICE_WITH_ID + id + " not found"));
 
     newDeviceDetails.setId(id);
     newDeviceDetails.setCreationTime(existingDevice.getCreationTime());
@@ -98,7 +101,8 @@ public class DeviceService {
 
   public Device partialUpdateDevice(Long id, Map<String, Object> updates) {
     Device existingDevice = deviceRepository.findById(id)
-        .orElseThrow(() -> new DeviceNotFoundException("Device with id " + id + " not found"));
+        .orElseThrow(
+            () -> new DeviceNotFoundException(Constants.DEVICE_WITH_ID + id + " not found"));
 
     if (updates.containsKey("creationTime")) {
       throw new InvalidOperationException("Creation time cannot be updated");

@@ -19,6 +19,7 @@ class DeviceManagerApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// Empty test
 	}
 
 }
